@@ -34,9 +34,6 @@ OUTPUT_CSV = "combined_myneta_sansad.csv"
 PHOTO_DIR_SANSAD = "mp_photos_sansad"
 os.makedirs(PHOTO_DIR_SANSAD, exist_ok=True)
 
-# How many MyNeta profiles to open for detailed info (set to 0 to skip)
-MYNETA_PROFILE_LIMIT = 10
-
 # Selenium options
 SELENIUM_HEADLESS = True
 
@@ -229,8 +226,8 @@ def fetch_sansad_for_state(state, page_size=10, ministers_map=None):
             }
             # Enrich with minister info
             if ministers_map and member_id in ministers_map:
-                rec["sansad_position"] = ministers_map[member_id]["position"]
-                rec["sansad_position_detail"] = get_current_position(member_id)
+                sansad_rec["sansad_position"] = ministers_map[member_id]["position"]
+                sansad_rec["sansad_position_detail"] = get_current_position(member_id)
             sansad_rec["sansad_photo_file"] = download_photo(photo_url, name, PHOTO_DIR_SANSAD) if photo_url else ""
             records.append(sansad_rec)
             print(f"Sansad: {name} ({constituency})")
@@ -350,7 +347,7 @@ def get_myneta_profile_details(driver, profile_url):
                     other_elections.append(entry)
     return photo_url, education_detail, other_elections
 
-def scrape_myneta_all(driver, profile_limit=10):
+def scrape_myneta_all(driver):
     """Scrape MyNeta winners table. Returns list of myneta records."""
     driver.get(MYNETA_URL)
     time.sleep(4)
@@ -436,8 +433,8 @@ def main():
     try:
         # Load ministers first
         ministers_map = fetch_council_of_ministers(driver_local)
-        myneta_data = scrape_myneta_all(driver_local, profile_limit=MYNETA_PROFILE_LIMIT)
-        sansad_data = fetch_sansad_for_state(STATE, page_size=PAGE_SIZE)
+        myneta_data = scrape_myneta_all(driver_local)
+        sansad_data = fetch_sansad_for_state(STATE, page_size=PAGE_SIZE, ministers_map=ministers_map)
 
         sansad_lookup = build_sansad_lookup(sansad_data)
         merged = []

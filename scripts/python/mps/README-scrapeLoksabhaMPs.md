@@ -46,7 +46,7 @@ It scrapes **MyNeta candidate data** using Selenium + BeautifulSoup, retrieves *
 ### 2️⃣ Run the Script
 
 ```bash
-python3 merge_myneta_sansad.py
+python3 scripts/python/mps/scrapeLoksabhaMPs.py
 ```
 
 The script will:
