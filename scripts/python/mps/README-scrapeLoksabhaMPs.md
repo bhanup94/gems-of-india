@@ -1,115 +1,126 @@
-# 🧩 MyNeta–Sansad Data Merger
+# 🏛 Lok Sabha Data Merger — MyNeta × Sansad × Empowered Indian
 
-This project merges **Lok Sabha 2024 winner data** from [MyNeta.info](https://myneta.info/LokSabha2024) with **MP details** from the official [Sansad API](https://sansad.in).  
-
-It scrapes **MyNeta candidate data** using Selenium + BeautifulSoup, retrieves **Sansad member data** and **council of ministers information** via APIs, and outputs a **combined CSV file** containing prefixed columns:
-- `myneta_*` → fields from MyNeta
-- `sansad_*` → fields from Sansad
+This Python project merges **MyNeta Lok Sabha 2024 winners’ data**, **Sansad.in Member API data**, and **Empowered Indian MPLADS utilization stats** into one enriched dataset.  
+It produces a comprehensive CSV and HTML-ready descriptions for each Member of Parliament (MP) — including education, assets, and social profiles.
 
 ---
 
-## 🚀 Features
+## ⚙️ Features
 
-✅ Scrapes **MyNeta** winners list and individual profiles  
-✅ Extracts **photo URL, education detail**, and **past election comparison data**  
-✅ Fetches **Sansad MP details** using official APIs  
-✅ Integrates **Council of Ministers** data (From Sansad data)  
-✅ Fetches **current ministerial position** via Sansad's `positionHeld` API  
-✅ Downloads MP photos from Sansad  
-✅ Merges both datasets on **constituency name** (exact match)  
-✅ Outputs a **clean, unified CSV** for easy analysis
-
----
-
-## 🗂️ Output Files
-
-| File | Description |
-|------|--------------|
-| `combined_myneta_sansad.csv` | Final merged dataset (UTF-8 encoded) |
-| `mp_photos_sansad/` | Directory containing downloaded Sansad MP photos |
+- 🔍 Scrapes **MyNeta.info** candidate details (Lok Sabha 2024)
+- 🏛 Fetches **Sansad.in** member info & portfolio assignments
+- 📊 Integrates **Empowered Indian** MPLADS utilization API
+- 🧾 Generates **HTML MP descriptions** (ready for embedding)
+- 🧠 Cleans & standardizes education, assets, and constituency names
+- 🖼 Downloads MP photos into a local folder
+- 💾 Produces two CSV outputs:
+  - `combined_myneta_sansad.csv` → full dataset  
+  - `gems_of_india.csv` → curated dataset for upload. Use upload-with-submit.py
 
 ---
 
-## ⚙️ Requirements
+## 🧰 Requirements
 
-- Python **3.8+**
-- Google Chrome + ChromeDriver (matching version)
-- Python libraries:
-  ```bash
-  pip install selenium beautifulsoup4 requests
-  ```
+- Python 3.9+
+- Google Chrome browser
+- ChromeDriver installed and in PATH
+- Internet connection (for scraping and API access)
 
----
-
-## 🧭 Usage
-
-### 2️⃣ Run the Script
+### Install Dependencies
 
 ```bash
-python3 scripts/python/mps/scrapeLoksabhaMPs.py
+pip install selenium beautifulsoup4 pandas requests
+```
+
+---
+
+## 🚀 Usage
+
+### 1️⃣ Clone this repository
+
+```bash
+git clone https://github.com/yourusername/loksabha-merger.git
+cd loksabha-merger
+```
+
+### 2️⃣ Run the script
+
+```bash
+python3 scrapeLoksabhaMPs.py
 ```
 
 The script will:
-1. Launch a headless Chrome instance  
-2. Scrape MyNeta winners’ data and profiles  
-3. Fetch Sansad MPs and their detailed info  
-4. Merge both datasets by **constituency name**  
-5. Save the merged output as `combined_myneta_sansad.csv`
+- Open Chrome (headless)
+- Scrape **MyNeta** winners list
+- Pull **Sansad.in** MPs (18th Lok Sabha)
+- Merge with **Empowered Indian** utilization data
+- Save outputs locally
 
 ---
 
-## 🧩 Key Functions
+## 📂 Output Files
 
-| Function | Description |
-|-----------|--------------|
-| `fetch_council_of_ministers(driver)` | Extracts JSON data from the Sansad "Council of Ministers" page |
-| `get_current_position(mp_code)` | Fetches the latest ministerial post for a given MP code |
-| `fetch_sansad_for_state(state, page_size, ministers_map)` | Retrieves MP details from Sansad API (across multiple pages) |
-| `scrape_myneta_all(driver)` | Scrapes all Lok Sabha 2024 winners from MyNeta |
-| `get_myneta_profile_details(driver, url)` | Extracts photo URL, education details, and past elections |
-| `merge` logic | Joins MyNeta and Sansad records by normalized constituency name |
+| File | Description |
+|------|--------------|
+| `combined_myneta_sansad.csv` | Full merged dataset with MyNeta, Sansad, and Empowered Indian columns |
+| `gems_of_india.csv` | Curated dataset for external publishing |
+| `mp_photos_sansad/` | Folder containing downloaded MP photos |
 
 ---
 
-## 🧹 Data Normalization
+## 🧩 Column Prefixes
 
-Constituency names are normalized by:
-- Removing text inside parentheses  
-- Removing punctuation and numbers  
-- Collapsing extra spaces  
-- Converting to uppercase  
-
-Example:  
-```
-"Amethi (S.C)" → "AMETHI"
-```
+| Prefix | Source | Example Fields |
+|--------|---------|----------------|
+| `myneta_*` | MyNeta.info | Candidate, Party, Assets, Liabilities, Education |
+| `sansad_*` | Sansad.in | Member ID, Photo, Address, DOB, Email |
+| `empowered_*` | Empowered Indian | MP ID, Utilization %, Constituency |
 
 ---
 
-## 📸 Sample Output Columns
+## 🧠 Data Normalization
 
-| Category | Example Fields |
-|-----------|----------------|
-| MyNeta | `myneta_candidate`, `myneta_party`, `myneta_constituency`, `myneta_education_summary` |
-| Sansad | `sansad_name`, `sansad_party`, `sansad_photo_url`, `sansad_position`, `sansad_education` |
-
----
-
-## 🧠 Notes
-
-- Headless Chrome can be toggled via `SELENIUM_HEADLESS = True`  
-- Modify `MYNETA_PROFILE_LIMIT` to limit how many MyNeta profiles are opened  
-- Invalid MyNeta rows (ads, “donate”, “download app”) are automatically filtered  
-- Merged matches are logged with a count summary at the end  
-- Fallback empty values are inserted when no Sansad match is found  
+- **Constituencies** standardized between MyNeta & Sansad  
+- **Emails** cleaned (fixes `[at]`, `(dot)` issues)  
+- **Assets/Liabilities** parsed into crores  
+- **Twitter/X links** prefixed automatically  
+- **Photo URLs** sanitized and stored locally  
 
 ---
 
-## 📊 Example Output (CSV Preview)
+## 🏛 Council of Ministers Integration
 
-| myneta_candidate | myneta_party | sansad_name | sansad_constituency | sansad_position | sansad_twitter    |
-|------------------|---------------|-------------|----------------------|------------------|-------------------|
-| ABC              | BJP | XYZ         | AMETHI | Union Minister of Women and Child Development | https://x.com/abc |
+Pulls the official list of ministers from  
+[`https://sansad.in/ls/members/in-council-of-ministers`](https://sansad.in/ls/members/in-council-of-ministers)  
+and enriches MP records with portfolio details such as *Minister of State for Education* or *Cabinet Minister for Finance*.
 
 ---
- 
+
+## 🔗 Empowered Indian Integration
+
+Fetches utilization data from  
+[`https://api.empoweredindian.in/api/summary/mps`](https://api.empoweredindian.in/api/summary/mps)  
+for Lok Sabha term 18.
+
+
+## 🧾 Example Output Row
+
+| Column | Example |
+|--------|----------|
+| `myneta_candidate` | Rahul Gandhi |
+| `myneta_total_assets` | ₹20.55 crore |
+| `sansad_constituency` | Wayanad |
+| `sansad_email` | rahulgandhi@nic.in |
+| `sansad_position` | Member, Committee on Defence |
+| `empowered_indian_url` | https://empoweredindian.in/mp/1234 |
+
+---
+
+
+
+## 🪶 Credits
+
+**Data Sources:**
+- [MyNeta.info](https://www.myneta.info/)
+- [Sansad.in](https://sansad.in/)
+- [Empowered Indian](https://empoweredindian.in)
