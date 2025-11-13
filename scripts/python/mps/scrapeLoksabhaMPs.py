@@ -497,7 +497,7 @@ def scrape_empoweredindian():
 
         params["page"] += 1
 
-    print(f"\n✅ Found  {len(constituency_to_mp_id)} empowered indian constituencies to {output_file} iteration count: {count}")
+    print(f"\n✅ Found  {len(constituency_to_mp_id)} empowered indian constituencies iteration count: {count}")
     return constituency_to_mp_id
 
 def scrape_myneta_all(driver):
@@ -556,7 +556,7 @@ def scrape_myneta_all(driver):
             "myneta_liabilities": liabilities,
             "myneta_other_elections": json.dumps(other_elections, ensure_ascii=False),
             "myneta_photo_url": photo_url,
-            "mynet_constituency_key": constituency.strip().upper()+":"+state.strip().upper()
+            "myneta_constituency_key": constituency.strip().upper()+":"+state.strip().upper()
         }
         myneta_records.append(rec)
         print(f"MyNeta: {candidate_name} ({constituency_raw})")
@@ -572,6 +572,7 @@ def build_sansad_lookup(sansad_records):
     for r in sansad_records:
         key = r.get("sansad_constituency", "")+":"+r.get("sansad_state", "").upper()
         d.setdefault(key, []).append(r)
+    print(d)
     return d
 
 def find_sansad_by_constituency(myneta_const, sansad_lookup):
@@ -719,8 +720,9 @@ def main():
                 print("sansad profile  not found for ")
                 print(m)
             if key in constituency_key_to_mpid.keys():
-                merged['empowered_indian_url']="https://www.empoweredindian.in/mplads/mps/"+constituency_key_to_mpid[key]
+                combined['empowered_indian_url']="https://www.empoweredindian.in/mplads/mps/"+constituency_key_to_mpid[key]
             else:
+                combined['empowered_indian_url']=""
                 print(f"constituency: {key} not found in empowered indian")
 
         for row in merged:
